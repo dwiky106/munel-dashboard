@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Finance Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<div id="loadingScreen">
+  <div class="loader"></div>
+  <p>sabar sayang masih loading 💙</p>
+</div>
+
+<body>
+
+<div class="container">
+
+  <div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
+  <button class="btn-toggle" onclick="toggleMode()">
+    🌙 / ☀ Mode
+  </button>
+</div>
+
+  <h1>Munel Dashboard</h1>
+
+  <button class="btn-primary" onclick="openModal()">
+    Payout Payment
+  </button>
+
+  <button class="btn-primary" onclick="openTarikTunai()">
+  Tarik Tunai
+</button>
+
+</div>
+
+
+
+<!-- MODAL -->
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+
+    <h2>Payout Payment</h2>
+
+    <input id="nama" placeholder="Nama Pelanggan">
+    <input id="hp" placeholder="No HP">
+    <input id="produk" placeholder="Produk">
+    <input id="modalInput" placeholder="Modal">
+    <input id="harga" placeholder="Harga Jual">
+
+    <select id="status">
+      <option value="Lunas">Lunas</option>
+      <option value="Terhutang">Hutang</option>
+    </select>
+
+    <button class="btn-success" onclick="kirimData()">
+      Kirim
+    </button>
+
+    <button class="btn-close" onclick="closeModal()">
+      Batal
+    </button>
+
+  </div>
+</div>
+
+<div class="card">
+  <h3>Filter Grafik</h3>
+  <select id="rangeSelect" onchange="updateChartRange()">
+    <option value="1h">1 Jam</option>
+    <option value="12h">12 Jam</option>
+    <option value="1d">1 Hari</option>
+    <option value="3d">3 Hari</option>
+    <option value="7d">7 Hari</option>
+    <option value="1m">1 Bulan</option>
+    <option value="3m">3 Bulan</option>
+  </select>
+</div>
+
+<div class="card" style="margin-top:30px;">
+  <h3>Grafik Transaksi</h3>
+  <canvas id="incomeChart"></canvas>
+</div>
+
+<div class="card" style="margin-top:20px;">
+  <h3>Daftar Hutang</h3>
+  <div id="hutangList"></div>
+</div>
+
+<!-- MODAL TAMBAH SALDO -->
+<div id="modalSaldo" class="modal hidden">
+  <div class="modal-content">
+    <h2>Tambah Saldo</h2>
+
+    <input id="nominalSaldo" placeholder="Nominal">
+
+    <button class="btn-success" onclick="kirimSaldo()">
+      Simpan
+    </button>
+
+    <button class="btn-danger" onclick="closeSaldo()">
+      Batal
+    </button>
+  </div>
+</div>
+
+<div class="saldo-grid">
+
+  <div class="card">
+  <h3>Keuntungan</h3>
+  <p>Rp <span id="totalProfit">0</span></p>
+
+  <button class="btn-danger" onclick="tarikLaba()">
+    Tarik Laba
+  </button>
+
+  <br><br>
+
+  <input type="date" id="startDate">
+  <input type="date" id="endDate">
+  <button onclick="filterProfit()">Filter</button>
+</div>
+
+<div class="card">
+  <h3>Download Laporan</h3>
+
+  <input type="date" id="pdfStart">
+  <input type="date" id="pdfEnd">
+
+  <button class="btn-primary" onclick="downloadPDF()">
+    Download PDF
+  </button>
+</div>
+
+  <div class="card">
+    <h3>Saldo Online</h3>
+    <p>Rp <span id="online">0</span></p>
+    <button class="btn-success" onclick="openTambahSaldo('ONLINE')">
+      Tambah
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>Cash Ditangan</h3>
+    <p>Rp <span id="cash">0</span></p>
+    <button class="btn-success" onclick="openTambahSaldo('CASH')">
+      Tambah
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>Total Saldo</h3>
+    <p>Rp <span id="totalSaldo">0</span></p>
+  </div>
+</div>
+<div class="card">
+  <h3>Jumlah Hutang</h3>
+  <p>Rp <span id="totalHutang">0</span></p>
+</div>
+
+<!-- MODAL SUKSES -->
+<div id="successModal" class="modal hidden">
+  <div class="modal-content success-box">
+
+    <div class="success-icon">✔</div>
+    <h2>BERHASIL</h2>
+
+    <div class="btn-group">
+      <button class="btn-secondary" onclick="closeSuccess()">
+        Kembali
+      </button>
+
+      <button class="btn-success" onclick="sendNotifWA()">
+        Send Notif
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL PIN -->
+<div id="pinModal" class="modal hidden">
+  <div class="modal-content">
+
+    <h3>Masukkan PIN Transaksi</h3>
+
+    <input type="password" id="pinInput" placeholder="******" maxlength="6">
+
+    <button class="btn-success" onclick="confirmPIN()">
+      Konfirmasi
+    </button>
+
+    <button class="btn-danger" onclick="closePIN()">
+      Batal
+    </button>
+
+  </div>
+</div>
+
+<div id="customPopup" class="modal hidden">
+  <div class="modal-content" style="text-align:center;">
+    <h3 id="popupTitle"></h3>
+    <p id="popupMessage" style="margin:15px 0;"></p>
+    <button class="btn-primary" onclick="closePopup()">OK</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
