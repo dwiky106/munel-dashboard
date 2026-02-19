@@ -1,4 +1,4 @@
-const API = "https://script.google.com/macros/s/AKfycbxUENa33i290SjxmvfOFOuThCI0gtimdb0HY0lGHNn9aNH2U6H8mMn4Upbd_rSL_cyi4A/exec";
+const API = "https://script.google.com/macros/s/AKfycbzB3KOUD92tsZE3k4-lSs64RN1PkoReje-v-ds4ybaSfXMioaLuj7_q0J5ujAcXbLJNLw/exec";
 
 let incomeChart;
 let currentAction = "payout";
