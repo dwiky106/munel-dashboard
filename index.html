@@ -169,8 +169,8 @@
         Kembali
       </button>
 
-      <button class="btn-success" onclick="sendNotifWA()">
-        Send Notif
+      <button class="btn-success" onclick="downloadStrukFromServer()">
+        Unduh Struk
       </button>
     </div>
 
@@ -195,7 +195,33 @@
 
   </div>
 </div>
+<div id="struk" style="
+  width:320px;
+  padding:15px;
+  background:white;
+  color:black;
+  font-family:'Courier New', monospace;
+  display:none;
+  font-size:12px;
+">
 
+  <div style="text-align:center;">
+    <b>ANGGUN CELL</b><br>
+    Jl. Waringin. Clelek<br>
+    ------------------------------
+  </div>
+
+  <div id="refSection"></div>
+
+  <div id="strukContent"></div>
+
+  <div style="text-align:center;margin-top:10px;">
+    ------------------------------<br>
+    TERIMA KASIH<br>
+    SIMPAN STRUK INI<br><br>
+    <div id="qrCode"></div>
+  </div>
+</div>
 <div id="customPopup" class="modal hidden">
   <div class="modal-content" style="text-align:center;">
     <h3 id="popupTitle"></h3>
@@ -203,7 +229,8 @@
     <button class="btn-primary" onclick="closePopup()">OK</button>
   </div>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
