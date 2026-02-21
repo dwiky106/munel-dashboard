@@ -1,4 +1,4 @@
-const API = "https://script.google.com/macros/s/AKfycbzfeBiSso6Ns1LZ_1vHUc4oUB-iCj3nUtum9qb6Rqa2sGTWdh1cNL82O9HUtoyEwIIU4w/exec";
+const API = "https://script.google.com/macros/s/AKfycbzC0ulCLPSaJPGltl4Q9bY2gN08S-QR9Vw4d31weH9faRbDF2F4Q68-pnw-BBsKjjU1ew/exec";
 
 let incomeChart;
 let currentAction = "payout";
@@ -187,7 +187,7 @@ function renderHutang(list){
 
     list.forEach(item=>{
       html += `
-        <div style="margin-bottom:10px;padding:12px;background:#111;border-radius:8px;">
+          <div class="hutang-item">
           <b>${item.nama}</b><br>
           Produk: ${item.produk}<br>
           Rp ${item.nominal}<br><br>
@@ -342,66 +342,105 @@ function closeSuccess(){
   document.getElementById("successModal").classList.add("hidden");
 }
 
-async function sendNotifWA(){
+async function downloadStrukFromServer(){
 
-  if(!lastTransactionData || !lastTransactionData.hp){
-    showPopup("Error","Data pelanggan tidak ditemukan");
+  if(!lastTransactionData){
+    showPopup("Error","Data transaksi tidak ditemukan");
     return;
   }
 
-  // Format pesan lebih rapi & profesional
-  const message = 
-`Terimakasih, pesanan *${lastTransactionData.produk}* di Anggun Cell sudah berhasil dengan total harga *Rp ${Number(lastTransactionData.harga).toLocaleString()}*.
-
-Pesan ini dikirim otomatis, mohon untuk tidak membalas pesan ini.
-
-⚠️ Hati-hati penipuan!
-Anggun Cell tidak pernah meminta OTP, sandi, atau transaksi mencurigakan lainnya selain melalui nomor resmi ini.
-
-Terimakasih atas kepercayaan Anda 🙏`;
-
-  showLoading(); // 🔥 tampilkan loading saat kirim WA
+  showLoading();
 
   try{
 
     const response = await fetch(API,{
       method:"POST",
       body: new URLSearchParams({
-        action:"sendWA",
-        nomor:lastTransactionData.hp,
-        pesan:message
+        action:"getStruk",
+        nama:lastTransactionData.nama,
+        produk:lastTransactionData.produk,
+        harga:lastTransactionData.harga,
+        status:lastTransactionData.status
       })
     });
 
-    const result = await response.json();
+    const data = await response.json();
 
-    hideLoading(); // 🔥 matikan loading dulu
+    hideLoading();
 
-    if(result.status === "wa_sent"){
-      
-      closeSuccess(); // tutup modal berhasil
-
-      showPopup("Notifikasi Berhasil",
-        "Pesan WhatsApp berhasil dikirim ke pelanggan"
-      );
-
-    }else{
-
-      showPopup("Gagal",
-        "Terjadi kesalahan saat mengirim notifikasi"
-      );
-    }
+    generateStrukImage(data);
 
   }catch(err){
 
     hideLoading();
-
-    showPopup("Error",
-      "Tidak dapat terhubung ke server"
-    );
+    showPopup("Error","Tidak dapat terhubung ke server");
   }
 }
 
+function generateStrukImage(data){
+
+  const now = new Date();
+
+  // 🔥 Generate Nomor Referensi
+  const timestamp =
+    now.getFullYear().toString() +
+    String(now.getMonth()+1).padStart(2,"0") +
+    String(now.getDate()).padStart(2,"0") +
+    String(now.getHours()).padStart(2,"0") +
+    String(now.getMinutes()).padStart(2,"0") +
+    String(now.getSeconds()).padStart(2,"0");
+
+  const randomNumber = Math.floor(Math.random()*9000) + 1000;
+
+  const refNumber = "TRX" + timestamp + randomNumber;
+
+  // 🔥 Format Tanggal
+  const tanggal = now.toLocaleString("id-ID");
+
+  // 🔥 Hitung Total
+  const harga = Number(data.harga) || 0;
+
+  // 🔥 Isi Konten Struk
+  document.getElementById("refSection").innerHTML = `
+    No.Ref : ${refNumber}<br>
+    Tanggal: ${tanggal}<br>
+    ------------------------------
+  `;
+
+  document.getElementById("strukContent").innerHTML = `
+    Nama   : ${data.nama}<br>
+    Produk : ${data.produk}<br>
+    Status : ${data.status}<br>
+    ------------------------------<br>
+    TOTAL  : Rp ${harga.toLocaleString("id-ID")}<br>
+  `;
+
+  // 🔥 Generate QR Code
+  const qrContainer = document.getElementById("qrCode");
+  qrContainer.innerHTML = "";
+
+  new QRCode(qrContainer,{
+    text: refNumber,
+    width:80,
+    height:80
+  });
+
+  const el = document.getElementById("struk");
+  el.style.display = "block";
+
+  html2canvas(el,{scale:2}).then(canvas => {
+
+    const link = document.createElement("a");
+    link.download = "Struk_" + refNumber + ".png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+
+    el.style.display = "none";
+
+    closeSuccess();
+    showPopup("Berhasil","Struk berhasil didownload");
+  });
+}
 
 function downloadPDF(){
 
@@ -452,11 +491,13 @@ async function confirmPIN(){
     }
 
     // 🔥 SIMPAN DATA UNTUK WA
-    if(pendingAction === "payout" || pendingAction === "tarikTunai"){
+if(pendingAction === "payout" || pendingAction === "tarikTunai"){
   lastTransactionData = {
+    nama: pendingData.nama,
     hp: pendingData.hp,
     produk: pendingData.produk,
-    harga: pendingData.harga
+    harga: pendingData.harga,
+    status: pendingData.status
   };
 
   document.getElementById("successModal")
@@ -471,9 +512,11 @@ closePIN();
 if(pendingAction === "payout" || pendingAction === "tarikTunai"){
 
   lastTransactionData = {
+    nama: pendingData.nama,
     hp: pendingData.hp,
     produk: pendingData.produk,
-    harga: pendingData.harga
+    harga: pendingData.harga,
+    status: pendingData.status
   };
 
   document.getElementById("successModal")
@@ -535,6 +578,3 @@ function toggleMode(){
     localStorage.setItem("theme","dark");
   }
 }
-
-
-
